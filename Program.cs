@@ -1,5 +1,10 @@
 using AndreaWearApi.Infrastructure.Persistence;
 using AndreaWearApi.Features.Store;
+using AndreaWearApi.Features.Admin;
+using AndreaWearApi.Features.Admin.Repositories;
+using AndreaWearApi.Features.Admin.Services;
+using AndreaWearApi.Features.Store.Repositories;
+using AndreaWearApi.Features.Store.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
@@ -20,6 +25,10 @@ if (string.IsNullOrWhiteSpace(connectionString))
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString));
+builder.Services.AddScoped<IStoreProductRepository, StoreProductRepository>();
+builder.Services.AddScoped<IStoreProductService, StoreProductService>();
+builder.Services.AddScoped<IAdminDashboardRepository, AdminDashboardRepository>();
+builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
 
 var allowedOrigins = builder.Configuration
     .GetSection("Cors:AllowedOrigins")
@@ -85,6 +94,7 @@ app.UseAuthorization();
 
 app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
 app.MapStoreEndpoints();
+app.MapAdminEndpoints();
 
 using (var scope = app.Services.CreateScope())
 {
